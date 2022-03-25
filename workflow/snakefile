@@ -1,0 +1,33 @@
+from snakemake.io import touch, directory, temp, expand
+
+configfile: "config.yaml"
+
+rule annotation:
+    input:
+        "resources/genomes/{strain}.fa"
+    output:
+        directory("results/annotations/{strain}")
+    threads: 10
+    message: "executing PROKKA with {threads} threads on genome assembly of {wildcards.strain}"
+    log: "results/logs/{strain}_prokka.log"
+    conda: "envs/prokka.yaml"
+    params: centre="UU", minlen="200", genus="Escherichia", species="coli"
+    shell:
+        # skip tRNAs search?
+        "prokka --addgenes --addmrna --compliant --notrna --outdir {output} --locustag {wildcards.strain} "
+        "--prefix {wildcards.strain}_genomic --centre {params.centre} --genus {params.genus} "
+        "--species {params.species} --strain {wildcards.strain} --kingdom Bacteria --cpus {threads} "
+        "--mincontiglen {params.minlen} {input} &> {log}"
+
+rule pangenome:
+    input:
+        "results/annotations/{strain}/{strain}_genomic.gff"
+    output:
+        directory("results/pangenome/{strain}")
+    threads: 10
+    message: " "
+    log: "results/logs/{strain}_roary.log"
+    conda: ""
+    shell:
+        # check options
+        "roary -f {output} -p {threads} -e -n -v {input} &> {log}"
