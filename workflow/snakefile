@@ -13,7 +13,7 @@ rule annotation:
     output:
         gff="results/annotations/{strain}/{strain}_genomic.gff",
         dir=directory("results/annotations/{strain}")
-    threads: 10
+    threads: 16
     message: "executing PROKKA with {threads} threads on genome assembly of {wildcards.strain}"
     log: "results/logs/{strain}_prokka.log"
     conda: "envs/prokka.yaml"
@@ -30,7 +30,7 @@ rule pangenome:
         expand("results/annotations/{strain}/{strain}_genomic.gff", strain=config['strains'])
     output:
         directory("results/pangenome/")
-    threads: 10
+    threads: 16
     message: "executing basic roary"
     log: "results/logs/roary.log"
     conda: "envs/roary.yaml"
