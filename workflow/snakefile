@@ -1,12 +1,18 @@
-from snakemake.io import touch, directory, temp, expand
+from snakemake.io import touch, directory, expand
 
 configfile: "config.yaml"
+
+
+rule all:
+    input:
+        expand("results/final/{strain}_all.done", strain=config['strains'])
 
 rule annotation:
     input:
         "resources/genomes/{strain}.fa"
     output:
-        directory("results/annotations/{strain}")
+        gff="results/annotations/{strain}/{strain}_genomic.gff",
+        dir=directory("results/annotations/{strain}")
     threads: 10
     message: "executing PROKKA with {threads} threads on genome assembly of {wildcards.strain}"
     log: "results/logs/{strain}_prokka.log"
@@ -14,20 +20,27 @@ rule annotation:
     params: centre="UU", minlen="200", genus="Escherichia", species="coli"
     shell:
         # skip tRNAs search?
-        "prokka --addgenes --addmrna --compliant --notrna --outdir {output} --locustag {wildcards.strain} "
+        "prokka --addgenes --addmrna --compliant --notrna --force --outdir {output.dir} --locustag {wildcards.strain} "
         "--prefix {wildcards.strain}_genomic --centre {params.centre} --genus {params.genus} "
         "--species {params.species} --strain {wildcards.strain} --kingdom Bacteria --cpus {threads} "
         "--mincontiglen {params.minlen} {input} &> {log}"
 
 rule pangenome:
     input:
-        "results/annotations/{strain}/{strain}_genomic.gff"
+        expand("results/annotations/{strain}/{strain}_genomic.gff", strain=config['strains'])
     output:
-        directory("results/pangenome/{strain}")
+        directory("results/pangenome/")
     threads: 10
-    message: " "
-    log: "results/logs/{strain}_roary.log"
-    conda: ""
+    message: "executing basic roary"
+    log: "results/logs/roary.log"
+    conda: "envs/roary.yaml"
     shell:
         # check options
         "roary -f {output} -p {threads} -e -n -v {input} &> {log}"
+
+rule final:
+    input:
+        annot="results/annotations/{strain}/{strain}_genomic.gff",
+        pan="results/pangenome"
+    output: touch("results/final/{strain}_all.done")
+    shell: "echo 'DONE'"
