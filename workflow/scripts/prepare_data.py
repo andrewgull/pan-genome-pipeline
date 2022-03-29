@@ -11,4 +11,7 @@ strain_files = glob.glob(data_path + "/*")
 # if item one file: copy it ot resources/genomes and change name to dir name
 # else: join files and send them to resources/genomes, name should be the same as directory's name
 
+for item in strain_files:
+    fasta_files = glob.glob(item + "/*.fa")
+    if len(fasta_files) == 1:
 
