@@ -38,6 +38,22 @@ rule pangenome:
         # check options
         "roary -f {output} -p {threads} -e -n -v {input} &> {log}"
 
+rule resistance_genes:
+    # RGI database must be in the project directory as 'localDB'
+    # To retrieve it: rgi load --card_json ./card_database/card.json --local
+    input:
+        "results/annotations/{strain}"
+    output:
+        "results/resistance_genes/{strain}/rgi_table.txt" # IT'S JUST A PREFIX!
+    threads: 16
+    message: "executing RGI with {threads} threads on predicted proteins from {wildcards.strain}"
+    log: "results/logs/{strain}_rgi.log"
+    conda: "envs/rgi.yaml"
+    shell:
+        "output=$(echo '{output}' | cut -d'.' -f 1) && "
+        "rgi main --input_sequence {input}/{wildcards.strain}_genomic.faa --output_file $output  "
+        "--input_type protein --local  --num_threads {threads} --include_loose --clean &> {log}"
+
 rule final:
     input:
         annot="results/annotations/{strain}/{strain}_genomic.gff",
