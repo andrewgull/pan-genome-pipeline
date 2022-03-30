@@ -66,7 +66,7 @@ rule phylogenetic_tree:
     params: bootstrap=1000, model="C60+F+G4"
     shell:
          # check the command
-        "iqtree -s {input}/core_gene_alignment.aln -nt {threads} -o {output} -bb {params.bootstrap} -m {params.model} &> "
+        "iqtree -s {input}/core_gene_alignment.aln -nt {threads} -o {output} -bb {params.bootstrap} -m {params.model} &> {log}"
 
 
 rule final:
