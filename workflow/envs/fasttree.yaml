@@ -1,0 +1,5 @@
+name: fasttree-env
+channels:
+  - bioconda
+dependencies:
+  - fasttree=2.1.11
