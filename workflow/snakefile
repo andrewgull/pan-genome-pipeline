@@ -54,6 +54,18 @@ rule resistance_genes:
         "rgi main --input_sequence {input}/{wildcards.strain}_genomic.faa --output_file $output  "
         "--input_type protein --local  --num_threads {threads} --include_loose --clean &> {log}"
 
+rule pan_genome_plots:
+
+rule fast_phylogenetic_tree:
+    input:
+        "results/pangenome"
+    output:
+        "results/phylogeny/fasttree/core_gene_tree.nwk"
+    message: "executing FastTree on core genome alignment"
+    log: "results/logs/fasttree.log"
+    conda: "envs/fasttree.yaml"
+    shell: "FastTree –nt –gtr {input}/core_gene_alignment.aln > {output}"
+
 rule phylogenetic_tree:
     input:
         "results/pangenome"
