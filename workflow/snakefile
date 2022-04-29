@@ -24,19 +24,6 @@ rule annotation:
         "--species {params.species} --strain {wildcards.strain} --kingdom Bacteria --cpus {threads} "
         "--mincontiglen {params.minlen} {input} &> {log}"
 
-rule pangenome:
-    input:
-        expand("results/annotations/{strain}/{strain}_genomic.gff", strain=config['strains'])
-    output:
-        directory("results/pangenome/")
-    threads: 16
-    message: "executing basic roary"
-    log: "results/logs/roary.log"
-    conda: "envs/roary.yaml"
-    shell:
-        # check options
-        "roary -f {output} -p {threads} -e -n -v {input} &> {log}"
-
 rule resistance_genes:
     # RGI database must be in the project directory as 'localDB'
     # To retrieve it: rgi load --card_json ./card_database/card.json --local
@@ -52,6 +39,19 @@ rule resistance_genes:
         "output=$(echo '{output}' | cut -d'.' -f 1) && "
         "rgi main --input_sequence {input}/{wildcards.strain}_genomic.faa --output_file $output  "
         "--input_type protein --local  --num_threads {threads} --include_loose --clean &> {log}"
+
+rule pangenome:
+    input:
+        expand("results/annotations/{strain}/{strain}_genomic.gff", strain=config['strains'])
+    output:
+        directory("results/pangenome/")
+    threads: 16
+    message: "executing basic roary"
+    log: "results/logs/roary.log"
+    conda: "envs/roary.yaml"
+    shell:
+        # check options
+        "roary -f {output} -p {threads} -e -n -v {input} &> {log}"
 
 rule pan_genome_plots:
     input:
