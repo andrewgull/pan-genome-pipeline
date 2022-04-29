@@ -2,7 +2,6 @@ from snakemake.io import touch, directory, expand
 
 configfile: "config.yaml"
 
-
 rule all:
     input:
         expand("results/final/{strain}_all.done", strain=config['strains'])
@@ -76,7 +75,7 @@ rule fast_phylogenetic_tree:
     conda: "envs/fasttree.yaml"
     shell: "FastTree –nt –gtr {input}/core_gene_alignment.aln > {output}"
 
-rule phylogenetic_tree:
+rule accurate_phylogenetic_tree:
     input:
         "results/pangenome"
     output:
