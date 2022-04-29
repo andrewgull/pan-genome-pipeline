@@ -55,6 +55,16 @@ rule resistance_genes:
         "--input_type protein --local  --num_threads {threads} --include_loose --clean &> {log}"
 
 rule pan_genome_plots:
+    input:
+        script="workflow/scripts/create_pan_genome_plots.R",
+        dir="results/pangenome"
+    output:
+        directory("results/pangenome_plots")
+    message: ""
+    log: "results/logs/roary_plots.log"
+    conda: "envs/rscripts.yaml"
+    shell:
+        "Rscript {input.script} -i {input.dir} -o {output} -w 1414 -h 790 &> {log}"
 
 rule fast_phylogenetic_tree:
     input:
