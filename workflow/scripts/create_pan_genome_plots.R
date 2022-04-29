@@ -4,7 +4,6 @@
 # PODNAME: create_plots.R
 # Take the output files from the pan genome pipeline and create nice plots.
 library(ggplot2)
-library(tidyr)
 library(optparse)
 
 # CLI parsing
