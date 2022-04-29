@@ -64,6 +64,8 @@ rule pan_genome_plots:
     conda: "envs/rscripts.yaml"
     shell:
         "Rscript {input.script} -i {input.dir} -o {output} -w 1414 -e 790 &> {log}"
+        # this shit works on itself
+        # Rscript workflow/scripts/create_pan_genome_plots.R -i results/pangenome -o results/pangenome_plots -w 1414 -e 790
 
 rule fast_phylogenetic_tree:
     input:
