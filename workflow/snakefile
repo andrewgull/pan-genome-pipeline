@@ -79,7 +79,7 @@ rule accurate_phylogenetic_tree:
     input:
         "results/pangenome"
     output:
-        "results/phylogeny"
+        "results/phylogeny/iqtree/core_gene_tree.nwk"
     threads: 16
     message: "executing IQTree on core gene alignment"
     log: "results/logs/iqtree.log"
@@ -94,6 +94,9 @@ rule final:
     input:
         annot="results/annotations/{strain}/{strain}_genomic.gff",
         pan="results/pangenome",
-        rgi="results/resistance_genes/{strain}/rgi_table.txt"
+        rgi="results/resistance_genes/{strain}/rgi_table.txt",
+        plots="results/pangenome_plots",
+        fast_tree="results/phylogeny/fasttree/core_gene_tree.nwk",
+        iq_tree="results/phylogeny/iqtree/core_gene_tree.nwk"
     output: touch("results/final/{strain}_all.done")
     shell: "echo 'DONE'"
