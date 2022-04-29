@@ -74,7 +74,15 @@ rule fast_phylogenetic_tree:
     message: "executing FastTree on core genome alignment"
     log: "results/logs/fasttree.log"
     conda: "envs/fasttree.yaml"
-    shell: "FastTree –nt –gtr -log {output.inter} {input}/core_gene_alignment.aln > {output.tree} 2> {log}""
+    shell: "FastTree –nt –gtr -log {output.inter} {input}/core_gene_alignment.aln > {output.tree} 2> {log}"
+    # this command doesn't work
+    # FastTree –nt –gtr  results/pangenome/core_gene_alignment.aln > results/core_gene_tree.nwk
+    # with -log <file> works neither
+    # BUT this one works
+    # FastTree -nt -gtr -log fast_tree.log  results/pangenome/core_gene_alignment.aln > results/fast_tree.nwk
+    # and this ONE
+    # FastTree -nt -gtr results/pangenome/core_gene_alignment.aln > results/fast_tree.nwk
+    # Spot the difference!
 
 rule accurate_phylogenetic_tree:
     input:
