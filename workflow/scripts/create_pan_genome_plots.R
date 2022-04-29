@@ -10,12 +10,12 @@ library(optparse)
 option_list <- list(
    make_option(c("-i", "--input_directory"),
                type = "character",
-               default = "pangenome",
+               default = NULL,
                help = "A path to a directory with files for plotting produced by Roary",
                metavar = "character"),
    make_option(c("-o", "--output_directory"),
                type="character",
-               default="plots",
+               default=NULL,
                help="A name for output directory",
                metavar="character"),
    make_option(c("-w", "--fig_width"),
@@ -23,7 +23,7 @@ option_list <- list(
                default = 1414,
                help="figure width",
                metavar = "integer"),
-   make_option(c("-h", "--fig_height"),
+   make_option(c("-e", "--fig_height"),
                type = "integer",
                default = 790,
                help = "figure height",
@@ -33,11 +33,20 @@ option_list <- list(
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
+if (is.null(opt$input_directory)){
+ print_help(opt_parser)
+ stop("A filepath to a directory with input files must be provided", call. = FALSE)
+}
+if (is.null(opt$output_directory)){
+ print_help(opt_parser)
+ stop("A filepath to an output directory must be provided", call. = FALSE)
+}
+q
 # Read in data, make a plot, save to a file
 # table 1
 mydata <- read.table(paste(opt$input_directory, "number_of_new_genes.Rtab", sep="/"))
 
-png(paste(opt$output_directory, "number_of_new_genes.png", sep="/"), width=1414, height = 790)
+png(paste(opt$output_directory, "number_of_new_genes.png", sep="/"), width=opt$fig_width, height = opt$fig_height)
 boxplot(mydata, data=mydata, main="Number of new genes",
          xlab="No. of genomes", ylab="No. of genes",varwidth=TRUE, ylim=c(0,max(mydata)), outline=FALSE)
 dev.off()
@@ -45,7 +54,7 @@ dev.off()
 # table 2
 mydata <- read.table(paste(opt$input_directory, "number_of_conserved_genes.Rtab", sep="/"))
 
-png(paste(opt$output_directory, "number_of_conserved_genes.png", sep="/"), width=1414, height = 790)
+png(paste(opt$output_directory, "number_of_conserved_genes.png", sep="/"), width=opt$fig_width, height = opt$fig_height)
 boxplot(mydata, data=mydata, main="Number of conserved genes",
           xlab="No. of genomes", ylab="No. of genes",varwidth=TRUE, ylim=c(0,max(mydata)), outline=FALSE)
 dev.off()
@@ -53,7 +62,7 @@ dev.off()
 # table 3
 mydata <- read.table(paste(opt$input_directory, "number_of_genes_in_pan_genome.Rtab", sep="/"))
 
-png(paste(opt$output_directory, "number_of_genes_in_pan_genome.png", sep="/"), width=1414, height = 790)
+png(paste(opt$output_directory, "number_of_genes_in_pan_genome.png", sep="/"), width=opt$fig_width, height = opt$fig_height)
 boxplot(mydata, data=mydata, main="No. of genes in the pan-genome",
           xlab="No. of genomes", ylab="No. of genes",varwidth=TRUE, ylim=c(0,max(mydata)), outline=FALSE)
 dev.off()
@@ -61,7 +70,7 @@ dev.off()
 # table 4
 mydata <- read.table(paste(opt$input_directory, "number_of_unique_genes.Rtab", sep="/"))
 
-png(paste(opt$output_directory, "number_of_unique_genes.png", sep="/"), width=1414, height = 790)
+png(paste(opt$output_directory, "number_of_unique_genes.png", sep="/"), width=opt$fig_width, height = opt$fig_height)
 boxplot(mydata, data=mydata, main="Number of unique genes",
          xlab="No. of genomes", ylab="No. of genes",varwidth=TRUE, ylim=c(0,max(mydata)), outline=FALSE)
 dev.off()
@@ -69,7 +78,7 @@ dev.off()
 # table 5
 mydata <- read.table(paste(opt$input_directory, "blast_identity_frequency.Rtab", sep="/"))
 
-png(paste(opt$output_directory, "blast_identity_frequency.png", sep="/"), width=1414, height = 790)
+png(paste(opt$output_directory, "blast_identity_frequency.png", sep="/"), width=opt$fig_width, height = opt$fig_height)
 plot(mydata,main="Number of blastp hits with different percentage identity",  xlab="Blast percentage identity", ylab="No. blast results")
 dev.off()
 
