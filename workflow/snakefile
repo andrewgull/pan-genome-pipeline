@@ -63,17 +63,18 @@ rule pan_genome_plots:
     log: "results/logs/roary_plots.log"
     conda: "envs/rscripts.yaml"
     shell:
-        "Rscript {input.script} -i {input.dir} -o {output} -w 1414 -h 790 &> {log}"
+        "Rscript {input.script} -i {input.dir} -o {output} -w 1414 -e 790 &> {log}"
 
 rule fast_phylogenetic_tree:
     input:
         "results/pangenome"
     output:
-        "results/phylogeny/fasttree/core_gene_tree.nwk"
+        tree="results/phylogeny/fasttree/core_gene_tree.nwk",
+        inter="results/phylogeny/fasttree/core_gene_tree.checkp.txt"  # file with intermediate trees
     message: "executing FastTree on core genome alignment"
     log: "results/logs/fasttree.log"
     conda: "envs/fasttree.yaml"
-    shell: "FastTree –nt –gtr {input}/core_gene_alignment.aln > {output}"
+    shell: "FastTree –nt –gtr -log {output.inter} {input}/core_gene_alignment.aln > {output.tree} 2> {log}""
 
 rule accurate_phylogenetic_tree:
     input:
