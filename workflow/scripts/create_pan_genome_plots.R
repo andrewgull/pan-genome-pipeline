@@ -51,6 +51,16 @@ boxplot(mydata, data=mydata, main="Number of new genes",
          xlab="No. of genomes", ylab="No. of genes",varwidth=TRUE, ylim=c(0,max(mydata)), outline=FALSE)
 dev.off()
 
+## ggplot version with some processing
+mydata_tidy <- gather(mydata, key="obs", value = "val", 1:ncol(mydata))
+mydata_tidy$obs2 <- as.integer(sub("V", "", mydata_tidy$obs))
+mydata_tidy$obs2 <- factor(mydata_tidy$obs2, ordered = T)
+ggplot(mydata_tidy, aes(obs2, val)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle=45, size=6))+
+  xlab("No. of genomes") +
+  ylab("No. of genes")
+
 # table 2
 mydata <- read.table(paste(opt$input_directory, "number_of_conserved_genes.Rtab", sep="/"))
 
