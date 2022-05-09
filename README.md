@@ -7,4 +7,4 @@ see the workflow below
 
 # Workflow
 
-![Fig.1](figures/dag.png)
+![Fig.1](images/dag.png)
