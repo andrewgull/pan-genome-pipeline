@@ -86,6 +86,15 @@ rule fast_phylogenetic_tree:
     # FastTree -nt -gtr results/pangenome/core_gene_alignment.aln > results/fast_tree.nwk
     # Spot the difference!
 
+rule make_partition:
+    input:
+        "results/pangenome"
+    output:
+        "results/partitions/core_genome_partition.nex"
+    message: "making a partition file for core_genome_alignment.aln"
+    script: "scripts/make_partition.py"
+
+
 rule accurate_phylogenetic_tree:
     input:
         "results/pangenome"
@@ -107,6 +116,7 @@ rule final:
         pan="results/pangenome",
         rgi="results/resistance_genes/{strain}/rgi_table.txt",
         plots="results/pangenome_plots",
+        partition="results/partitions/core_genome_partition.nex",
         fast_tree="results/phylogeny/fasttree/core_gene_tree.nwk",
         iq_tree="results/phylogeny/iqtree/core_gene_tree.nwk"
     output: touch("results/final/{strain}_all.done")
