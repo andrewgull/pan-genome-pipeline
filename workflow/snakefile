@@ -97,17 +97,18 @@ rule make_partition:
 
 rule accurate_phylogenetic_tree:
     input:
-        "results/pangenome"
+        alignment="results/pangenome",
+        partition="results/partitions/core_genome_partition.nex"
     output:
         "results/phylogeny/iqtree/core_gene_tree.nwk"
     threads: 16
     message: "executing IQTree on core gene alignment"
     log: "results/logs/iqtree.log"
     conda: "envs/iqtree.yaml"
-    params: bootstrap=1000, model="C60+F+G4"
+    params: bootstrap=1000, model="C60+F+G4", ncat=15, max_threads=14
     shell:
          # check the command
-        "iqtree -s {input}/core_gene_alignment.aln -nt {threads} -o {output} -bb {params.bootstrap} -m {params.model} &> {log}"
+        "iqtree -s {input.alignment}/core_gene_alignment.aln -p {input.partition} -m MFP -cmax {params.ncat} -T AUTO -ntmax {threads} -o {output} -B {params.bootstrap} &> {log}"
 
 
 rule final:
