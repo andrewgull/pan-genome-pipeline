@@ -5,3 +5,4 @@ channels:
 dependencies:
   - r-ggplot2=3.3.5
   - r-optparse=1.7.1
+  - r-tidyr=1.2.0
