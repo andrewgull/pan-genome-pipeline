@@ -7,7 +7,7 @@ import os
 
 # define inputs
 # inside the snakefile it is just results/pangenome, that's why you need the actual file name
-input_embl = os.path.join(snakemake.input[0], "core_gene_alignment.aln")
+input_embl = os.path.join(snakemake.input[0], "core_alignment_header.embl")
 # define outputs -  here it's a full path to file
 output_nexus = snakemake.output[0]
 
