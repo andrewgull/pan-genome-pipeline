@@ -1,6 +1,6 @@
 from snakemake.io import touch, directory, expand
 
-configfile: "config.yaml"
+# configfile: "config.yaml"
 
 rule all:
     input:
@@ -12,7 +12,7 @@ rule annotation:
     output:
         gff="results/annotations/{strain}/{strain}_genomic.gff",
         dir=directory("results/annotations/{strain}")
-    threads: 16
+    threads: 14
     message: "executing PROKKA with {threads} threads on genome assembly of {wildcards.strain}"
     log: "results/logs/{strain}_prokka.log"
     conda: "envs/prokka.yaml"
@@ -31,7 +31,7 @@ rule resistance_genes:
         "results/annotations/{strain}"
     output:
         "results/resistance_genes/{strain}/rgi_table.txt" # IT'S JUST A PREFIX!
-    threads: 16
+    threads: 14
     message: "executing RGI with {threads} threads on predicted proteins from {wildcards.strain}"
     log: "results/logs/{strain}_rgi.log"
     conda: "envs/rgi.yaml"
@@ -40,12 +40,12 @@ rule resistance_genes:
         "rgi main --input_sequence {input}/{wildcards.strain}_genomic.faa --output_file $output  "
         "--input_type protein --local  --num_threads {threads} --include_loose --clean &> {log}"
 
-rule pangenome:
+rule pan_genome:
     input:
         expand("results/annotations/{strain}/{strain}_genomic.gff", strain=config['strains'])
     output:
         directory("results/pangenome/")
-    threads: 16
+    threads: 14
     message: "executing basic roary"
     log: "results/logs/roary.log"
     conda: "envs/roary.yaml"
@@ -67,48 +67,29 @@ rule pan_genome_plots:
         # this shit works on itself
         # Rscript workflow/scripts/create_pan_genome_plots.R -i results/pangenome -o results/pangenome_plots -w 1414 -e 790
 
-rule fast_phylogenetic_tree:
-    input:
-        "results/pangenome"
-    output:
-        tree="results/phylogeny/fasttree/core_gene_tree.nwk",
-        inter="results/phylogeny/fasttree/core_gene_tree.checkp.txt"  # file with intermediate trees
-    message: "executing FastTree on core genome alignment"
-    log: "results/logs/fasttree.log"
-    conda: "envs/fasttree.yaml"
-    shell: "FastTree –nt –gtr -log {output.inter} {input}/core_gene_alignment.aln > {output.tree} 2> {log}"
-    # this command doesn't work
-    # FastTree –nt –gtr  results/pangenome/core_gene_alignment.aln > results/core_gene_tree.nwk
-    # with -log <file> works neither
-    # BUT this one works
-    # FastTree -nt -gtr -log fast_tree.log  results/pangenome/core_gene_alignment.aln > results/fast_tree.nwk
-    # and this ONE
-    # FastTree -nt -gtr results/pangenome/core_gene_alignment.aln > results/fast_tree.nwk
-    # Spot the difference!
-
 rule make_partition:
     input:
         "results/pangenome"
     output:
-        "results/partitions/core_genome_partition.nex"
+        "results/partitions/core_gene_partition.nex"
     message: "making a partition file for core_genome_alignment.aln"
     script: "scripts/make_partition.py"
 
-
-rule accurate_phylogenetic_tree:
+rule phylogenetic_tree:
     input:
         alignment="results/pangenome",
         partition="results/partitions/core_genome_partition.nex"
     output:
-        "results/phylogeny/iqtree/core_gene_tree.nwk"
-    threads: 16
+        directory("results/phylogeny/iqtree")
+    threads: 14
     message: "executing IQTree on core gene alignment"
     log: "results/logs/iqtree.log"
     conda: "envs/iqtree.yaml"
-    params: bootstrap=1000, model="C60+F+G4", ncat=15, max_threads=14
+    params: bootstrap=1000, ncat=10
     shell:
          # check the command
-        "iqtree -s {input.alignment}/core_gene_alignment.aln -p {input.partition} -m MFP -cmax {params.ncat} -T AUTO -ntmax {threads} -o {output} -B {params.bootstrap} &> {log}"
+        "iqtree -s {input.alignment}/core_gene_alignment.aln -p {input.partition} --seqtype DNA -m MFP -cmax {params.ncat} "
+        "-T AUTO -ntmax {threads} --prefix {output} -B {params.bootstrap} -bnni --safe &> {log}"
 
 
 rule final:
@@ -118,7 +99,6 @@ rule final:
         rgi="results/resistance_genes/{strain}/rgi_table.txt",
         plots="results/pangenome_plots",
         partition="results/partitions/core_genome_partition.nex",
-        fast_tree="results/phylogeny/fasttree/core_gene_tree.nwk",
-        iq_tree="results/phylogeny/iqtree/core_gene_tree.nwk"
+        tree="results/phylogeny/iqtree/core_gene_tree.nwk"
     output: touch("results/final/{strain}_all.done")
     shell: "echo 'DONE'"
