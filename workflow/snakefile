@@ -76,7 +76,7 @@ rule make_partition:
 rule phylogenetic_tree:
     input:
         alignment="results/pangenome",
-        partition="results/partitions/core_genome_partition.nex"
+        partition="results/partitions/core_gene_partition.nex"
     output:
         directory("results/phylogeny/iqtree")
     threads: 14
@@ -87,7 +87,7 @@ rule phylogenetic_tree:
     shell:
          # check the command
         "iqtree -s {input.alignment}/core_gene_alignment.aln -p {input.partition} --seqtype DNA -m MFP -cmax {params.ncat} "
-        "-T AUTO -ntmax {threads} --prefix {output} -B {params.bootstrap} -bnni --safe &> {log}"
+        "-T AUTO -ntmax {threads} --prefix core_genome -B {params.bootstrap} -bnni --safe &> {log}"
 
 
 rule final:
@@ -96,7 +96,7 @@ rule final:
         pan="results/pangenome",
         rgi="results/resistance_genes/{strain}/rgi_table.txt",
         plots="results/pangenome_plots",
-        partition="results/partitions/core_genome_partition.nex",
-        tree="results/phylogeny/iqtree/core_gene_tree.nwk"
+        partition="results/partitions/core_gene_partition.nex",
+        tree="results/phylogeny/iqtree"
     output: touch("results/final/{strain}_all.done")
     shell: "echo 'DONE'"
