@@ -85,10 +85,10 @@ rule phylogenetic_tree:
     conda: "envs/iqtree.yaml"
     params: bootstrap=1000, ncat=10
     shell:
-         # check the command
+        "[ -d {output} ] || mkdir {output}; "
+        "cd {output} && "
         "iqtree -s {input.alignment}/core_gene_alignment.aln -p {input.partition} --seqtype DNA -m MFP -cmax {params.ncat} "
         "-T AUTO -ntmax {threads} --prefix core_genome -B {params.bootstrap} -bnni --safe &> {log}"
-
 
 rule final:
     input:
