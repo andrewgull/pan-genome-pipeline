@@ -21,12 +21,12 @@ option_list <- list(
                metavar="character"),
    make_option(c("-w", "--fig_width"),
                type = "integer",
-               default = 1414,
+               default = 10,
                help="figure width",
                metavar = "integer"),
    make_option(c("-e", "--fig_height"),
                type = "integer",
-               default = 790,
+               default = 6,
                help = "figure height",
                metavar = "integer")
 )
