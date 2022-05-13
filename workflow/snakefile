@@ -63,7 +63,7 @@ rule pan_genome_plots:
     log: "results/logs/roary_plots.log"
     conda: "envs/rscripts.yaml"
     shell:
-        "Rscript {input.script} -i {input.dir} -o {output} -w 1414 -e 790 &> {log}"
+        "Rscript {input.script} -i {input.dir} -o {output} -w 10 -e 6 &> {log}"
 
 rule make_partition:
     input:
@@ -83,12 +83,11 @@ rule phylogenetic_tree:
     message: "executing IQTree on core gene alignment"
     log: "results/logs/iqtree.log"
     conda: "envs/iqtree.yaml"
-    params: bootstrap=1000, ncat=10
+    params: bootstrap=1000, ncat=10, prefix="core_genome"
     shell:
-        "[ -d {output} ] || mkdir {output}; "
-        "cd {output} && "
         "iqtree -s {input.alignment}/core_gene_alignment.aln -p {input.partition} --seqtype DNA -m MFP -cmax {params.ncat} "
-        "-T AUTO -ntmax {threads} --prefix core_genome -B {params.bootstrap} -bnni --safe &> {log}"
+        "-T AUTO -ntmax {threads} --prefix {params.prefix} -B {params.bootstrap} -bnni --safe &> {log}; "
+        "[ -d {output} ] || mkdir {output}; mv {params.prefix}.* {output}"
 
 rule final:
     input:
